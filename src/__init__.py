@@ -1,8 +1,61 @@
+bl_info = {
+    "name": "Blender Fireworks",
+    "author": "Ashai-project",
+    "version": (1, 0),
+    "blender": (4, 2, 0),
+    "location": "3D View > Sidebar > Fireworks",
+    "description": "Imports PLY point clouds and creates fireworks particle effects",
+    "warning": "",
+    "doc_url": "",
+    "category": "Object",
+}
+
 import bpy
 import random
 import math
 import numpy as np
 from mathutils import Vector
+
+class FIREWORKS_OT_ImportPointCloud(bpy.types.Operator):
+    """PLY 点群データをインポート"""
+    bl_idname = "fireworks.import_ply"
+    bl_label = "Import PLY Point Cloud"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    filepath: bpy.props.StringProperty(subtype="FILE_PATH")
+
+    def execute(self, context):
+        point_cloud_obj, point_cloud = import_ply(self.filepath)
+        if point_cloud_obj:
+            self.report({'INFO'}, f"PLYファイルをインポートしました: {self.filepath}")
+        else:
+            self.report({'ERROR'}, "インポート失敗")
+
+        # 点群データをダウンサンプリング
+        downsampled_point_cloud = downsample_point_cloud_fps(point_cloud, num_samples=1000)
+
+        # 球状の発射台を作成
+        launch_obj, launch_points = create_launch_platform()
+        
+        # 発射台をセグメンテーション
+        inside_collection, outside_collection, inside_layers, outside_layers = segment_launch_platform(launch_points, downsampled_point_cloud, point_cloud_obj)
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)  # ファイル選択ダイアログを開く
+        return {'RUNNING_MODAL'}
+    
+class FIREWORKS_PT_Panel(bpy.types.Panel):
+    """FireworksのUIパネル"""
+    bl_label = "Fireworks Control"
+    bl_idname = "FIREWORKS_PT_Panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Fireworks"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("fireworks.import_ply", text="PLYインポート")
 
 def import_ply(file_path):
     try:
@@ -35,7 +88,7 @@ def import_ply(file_path):
         print(f"Error: Failed to import PLY file: {e}")
         return None, None
 
-def create_launch_platform(name="LaunchPlatform", num_layers=10, points_per_layer=150, radius=5.0):
+def create_launch_platform(name="LaunchPlatform", num_layers=10, points_per_layer=100, radius=5.0):
     # コレクションを作成
     collection = bpy.data.collections.new(name)
     bpy.context.scene.collection.children.link(collection)
@@ -110,7 +163,7 @@ def segment_launch_platform(launch_layers, downsampled_point_cloud, mesh_obj):
         # ダウンサンプリングした結果を追加
         for  dp in downsampled_point_cloud:
             dist = np.linalg.norm(dp)
-            if (dist < layer_radius + 0.3) and (dist > layer_radius - 0.3):
+            if (dist < layer_radius + 0.25) and (dist > layer_radius - 0.25):
                 inside_points.append(dp)
         
         # 各レイヤーごとにオブジェクトを作成し、対応するコレクションに追加
@@ -230,23 +283,33 @@ def compute_average_distance_from_origin(points):
     distances = np.linalg.norm(points, axis=1)
     return np.mean(distances)
 
-def main():
-    # シーンをリセット
-    bpy.ops.object.select_all(action='SELECT')
-    bpy.ops.object.delete()
+# def main():
+#     # シーンをリセット
+#     bpy.ops.object.select_all(action='SELECT')
+#     bpy.ops.object.delete()
     
-    # 点群データをロード
-    file_path = "path\\to\\plyFile"
-    point_cloud_obj, point_cloud = import_ply(file_path)
-    if point_cloud is None:
-        return  # エラー時に終了
-        # 点群データをダウンサンプリング
-    downsampled_point_cloud = downsample_point_cloud_fps(point_cloud, num_samples=1000)
+#     # 点群データをロード
+#     file_path = "path\\to\\plyFile"
+#     point_cloud_obj, point_cloud = import_ply(file_path)
+#     if point_cloud is None:
+#         return  # エラー時に終了
+#         # 点群データをダウンサンプリング
+#     downsampled_point_cloud = downsample_point_cloud_fps(point_cloud, num_samples=1000)
 
-    # 球状の発射台を作成
-    launch_obj, launch_points = create_launch_platform()
+#     # 球状の発射台を作成
+#     launch_obj, launch_points = create_launch_platform()
     
-    # 発射台をセグメンテーション
-    inside_collection, outside_collection, inside_layers, outside_layers = segment_launch_platform(launch_points, downsampled_point_cloud, point_cloud_obj)
+#     # 発射台をセグメンテーション
+#     inside_collection, outside_collection, inside_layers, outside_layers = segment_launch_platform(launch_points, downsampled_point_cloud, point_cloud_obj)
     
-main()
+# main()
+def register():
+    bpy.utils.register_class(FIREWORKS_OT_ImportPointCloud)
+    bpy.utils.register_class(FIREWORKS_PT_Panel)
+
+def unregister():
+    bpy.utils.unregister_class(FIREWORKS_OT_ImportPointCloud)
+    bpy.utils.unregister_class(FIREWORKS_PT_Panel)
+
+if __name__ == "__main__":
+    register()
