@@ -1,0 +1,17 @@
+schema_version = "1.0.0"
+
+id = "blender_fireworks_launcher"
+version = "1.0.0"
+name = "Blender Fireworks Launcher"
+tagline = "Imports PLY point clouds and creates fireworks particle effects"
+maintainer = "Ashai-project"
+
+type = "add-on"
+
+website = ""
+tags = ["Render"]
+
+blender_version_min = "4.2.0"
+license = [
+  "SPDX:GPL-2.0-or-later",
+]
