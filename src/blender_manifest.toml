@@ -7,8 +7,6 @@ tagline = "Imports PLY point clouds and creates fireworks particle effects"
 maintainer = "Ashai-project"
 
 type = "add-on"
-
-website = ""
 tags = ["Render"]
 
 blender_version_min = "4.2.0"
