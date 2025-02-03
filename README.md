@@ -19,3 +19,7 @@ git clone https://github.com/Ashai-project/FireworkAddon.git
 <img src="https://github.com/user-attachments/assets/95874a26-db81-4a53-aab6-dc40804f4426" width="500">
 
 ## 例
+Stanford Bunny  
+<img src="https://github.com/user-attachments/assets/eb0a82f1-6bd4-4308-a681-0b39345b87f2" width="250">
+
+![無題の動画 ‐ Clipchampで作成](https://github.com/user-attachments/assets/1075c60a-aeb2-498d-b667-4034a5943ebc)
