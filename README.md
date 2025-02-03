@@ -13,6 +13,9 @@ git clone https://github.com/Ashai-project/FireworkAddon.git
 
 ## 使用方法
 1. PLYインポートから好きなモデルデータを選択
+<img src="https://github.com/user-attachments/assets/1f479cb5-9fc7-43ee-a66e-69fa56c0bce1" width="500">
+
 2. 好みで色を編集
+<img src="https://github.com/user-attachments/assets/95874a26-db81-4a53-aab6-dc40804f4426" width="500">
 
 ## 例
